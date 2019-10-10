@@ -17,7 +17,7 @@ type config struct {
 	BackupDir  string   `env:"BACKUP_DIR,required"`
 	ServerHost string   `env:"SERVER_HOST" envDefault:"127.0.0.1"`
 	ServerPort string   `env:"SERVER_PORT" envDefault:"9001"`
-	SizeIn     string   `env:"SIZE_IN" envDefault:"MB"`
+	SizeIn     string   `env:"SIZE_IN" envDefault:"B"`
 	Databases  []string `env:"DATABASES,required" envSeparator:","`
 	Debug      bool     `env:"DEBUG" envDefault:"false"`
 }
@@ -44,8 +44,10 @@ func (collector ottMongoBackupCollector) getSize(path string) (float64, error) {
 	}
 	var size float64
 	switch collector.config.SizeIn {
+	case "B":
+		size = float64(dirSize)
 	case "MB":
-		size = float64(dirSize) / 1000 / 1000
+		size = float64(dirSize) / 1024 / 1024
 	case "KB":
 		size = float64(dirSize) / 1024
 	case "GB":
