@@ -17,7 +17,6 @@ type config struct {
 	BackupDir  string   `env:"BACKUP_DIR,required"`
 	ServerHost string   `env:"SERVER_HOST" envDefault:"127.0.0.1"`
 	ServerPort string   `env:"SERVER_PORT" envDefault:"9001"`
-	SizeIn     string   `env:"SIZE_IN" envDefault:"B"`
 	Databases  []string `env:"DATABASES,required" envSeparator:","`
 	Debug      bool     `env:"DEBUG" envDefault:"false"`
 }
@@ -43,18 +42,7 @@ func (collector ottMongoBackupCollector) getSize(path string) (float64, error) {
 		return 0, err
 	}
 	var size float64
-	switch collector.config.SizeIn {
-	case "B":
-		size = float64(dirSize)
-	case "MB":
-		size = float64(dirSize) / 1024 / 1024
-	case "KB":
-		size = float64(dirSize) / 1024
-	case "GB":
-		size = float64(dirSize) / 1024 / 1024 / 1024
-	default:
-		size = float64(dirSize) / 1024 / 1024
-	}
+	size = float64(dirSize)
 	return size, nil
 }
 
@@ -69,7 +57,7 @@ func newOttMongoBackupCollector() *ottMongoBackupCollector {
 	}
 	backup := prometheus.NewDesc(
 		"ott_mongodb_backup_size",
-		fmt.Sprintf("shows backup size in %s", cfg.SizeIn),
+		"shows backup size in bytes",
 		[]string{"database"}, nil)
 	if cfg.Debug {
 		log.SetLevel(log.DebugLevel)
