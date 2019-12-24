@@ -1,0 +1,24 @@
+language: go
+go:
+  - 1.13.x
+os:
+  - linux
+dist: bionic
+sudo: false
+install: true
+script:
+  - go get -d -v
+  - go build -o mongodb-backup-exporter
+  - touch mongodb-backup-exporter_${TRAVIS_TAG}_linux-amd64.tar.gz
+  - mkdir mongodb-backup-exporter_${TRAVIS_TAG}_linux-amd64
+  - mv mongodb-backup-exporter mongodb-backup-exporter_${TRAVIS_TAG}_linux-amd64/
+  - tar -czf mongodb-backup-exporter_${TRAVIS_TAG}_linux-amd64.tar.gz --exclude='./.*' --exclude=mongodb-backup-exporter_${TRAVIS_TAG}_linux-amd64.tar.gz mongodb-backup-exporter_${TRAVIS_TAG}_linux-amd64
+git:
+  depth: 1
+deploy:
+  provider: releases
+  api_key: $GITHUB_TOKEN
+  file: "mongodb-backup-exporter_${TRAVIS_TAG}_linux-amd64.tar.gz"
+  skip_cleanup: true
+  on:
+    tags: true
